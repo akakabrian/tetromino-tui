@@ -173,9 +173,11 @@ async def s_engine_srs_rotation_ccw_cw_pairs(app, pilot):
         g = Game(seed=0)
         clear_matrix(g)
         place_piece(g, piece, x=3, y=10, rotation=0)
+        assert g.active is not None
         before = (g.active.x, g.active.y, g.active.rotation)
         g.action("rotate_cw")
         g.action("rotate_ccw")
+        assert g.active is not None
         after = (g.active.x, g.active.y, g.active.rotation)
         assert before == after, (piece, before, after)
 

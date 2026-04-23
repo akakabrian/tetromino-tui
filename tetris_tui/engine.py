@@ -20,10 +20,9 @@ Rules implemented:
 
 from __future__ import annotations
 
-import math
 import random
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Iterator, Literal
 
 from . import pieces as _p
@@ -485,8 +484,8 @@ class Game:
                 points=points,
                 piece=ap.piece,
             ))
-        else:
-            self._b2b = self._b2b  # no change unless hard-clear just above
+        # (no-clear lock leaves _b2b unchanged — streak only breaks on a
+        # non-hard clear.)
 
         self._lock_events.append({
             "piece": ap.piece,

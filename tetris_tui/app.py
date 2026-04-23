@@ -195,9 +195,6 @@ def _render_piece_minigrid(piece: str, rotation: int = 0) -> Text:
             else:
                 t.append("  ", style=style_off)
         t.append("\n")
-    # Strip the trailing newline — Text.append doesn't have a clean trim.
-    if t.plain.endswith("\n"):
-        t = Text.from_markup(t.plain.rstrip("\n")) if False else t
     return t
 
 
