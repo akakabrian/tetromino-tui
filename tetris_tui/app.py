@@ -377,6 +377,24 @@ class TetrisApp(App):
         # event, so we don't re-submit on every tick.
         self._high_score_recorded = False
 
+    # ---- RL hooks (headless; no Textual required) ----------------------
+
+    def game_state_vector(self):
+        from . import rl_hooks
+        return rl_hooks.state_vector(self.game)
+
+    def game_reward(self, prev_score: int = 0,
+                    prev_game_over: bool = False) -> float:
+        from . import rl_hooks
+        return rl_hooks.compute_reward(prev_score, prev_game_over, self.game)
+
+    def is_terminal(self) -> bool:
+        from . import rl_hooks
+        return rl_hooks.is_terminal(self.game)
+
+    def reset_game(self) -> None:
+        self.game = Game(start_level=self._start_level, seed=self._seed)
+
     # ---- layout --------------------------------------------------------
 
     def compose(self) -> ComposeResult:
