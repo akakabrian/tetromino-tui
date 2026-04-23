@@ -1,0 +1,18 @@
+[project]
+name = "tetris-tui"
+version = "0.1.0"
+description = "Terminal Blocks — clean-room Tetris-family TUI built on Textual"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.80,<10",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["tetris_tui"]
+
+[tool.setuptools.package-data]
+tetris_tui = ["tui.tcss"]

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+**/objs/
+*.so
+*.dylib
+*.dll
+tests/out/*.svg
+tests/out/*.png
+.DS_Store
