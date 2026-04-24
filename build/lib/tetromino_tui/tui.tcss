@@ -1,0 +1,126 @@
+/* tetromino-tui — cool dark UI with per-piece color accents */
+
+Screen {
+    background: #0d0c12;
+    color: #e8e6f2;
+}
+
+#body {
+    height: 1fr;
+}
+
+#matrix-col {
+    width: 28;
+    min-width: 28;
+    max-width: 1fr;
+    min-width: 24;
+    max-width: 32;
+    height: 1fr;
+}
+
+#side {
+    width: 1fr;
+    min-width: 22;
+    height: 1fr;
+}
+
+MatrixView {
+    height: 1fr;
+    border: round #5d5a7a;
+    border-title-color: #c9c4ec;
+    border-title-style: bold;
+    background: #17141d;
+}
+
+NextPanel {
+    height: 12;
+    border: round #5d5a7a;
+    border-title-color: #c9c4ec;
+    border-title-style: bold;
+    padding: 0 1;
+    background: #13111a;
+}
+
+HoldPanel {
+    height: 6;
+    border: round #5d5a7a;
+    border-title-color: #c9c4ec;
+    border-title-style: bold;
+    padding: 0 1;
+    background: #13111a;
+}
+
+StatsPanel {
+    height: 1fr;
+    border: round #5d5a7a;
+    border-title-color: #c9c4ec;
+    border-title-style: bold;
+    padding: 0 1;
+    background: #13111a;
+}
+
+#flash-bar {
+    height: 1;
+    padding: 0 1;
+    background: #1c1828;
+    color: #c9c4ec;
+}
+
+#help-overlay {
+    layer: overlay;
+    border: round #c9c4ec;
+    border-title-color: #c9c4ec;
+    border-title-style: bold;
+    background: #15131e;
+    color: #e8e6f2;
+    padding: 1 3;
+    offset: 50% 20%;
+    width: 64;
+    height: auto;
+    display: none;
+}
+
+Header {
+    background: #1c1828;
+    color: #c9c4ec;
+    text-style: bold;
+}
+
+Footer {
+    background: #1c1828;
+    color: #9691b5;
+}
+
+Footer > .footer--key {
+    background: #312b47;
+    color: #e0dcf8;
+    text-style: bold;
+}
+
+/* Modal screens */
+
+HighScoresScreen { align: center middle; }
+#scores-body {
+    width: 60; height: auto; padding: 1 3;
+    border: round #c9c4ec;
+    background: #15131e;
+}
+#scores-content { height: auto; }
+#scores-dismiss { padding-top: 1; color: #6e6a8c; }
+
+GameOverScreen { align: center middle; }
+#gameover-body {
+    width: 50; height: auto; padding: 1 3;
+    border: round #f07878;
+    background: #15131e;
+}
+#gameover-msg { height: auto; padding-bottom: 1; }
+
+ConfirmScreen { align: center middle; }
+#confirm-body {
+    width: 50; height: auto; padding: 1 3;
+    border: round #c9c4ec;
+    background: #15131e;
+}
+#confirm-msg { height: auto; padding-bottom: 1; }
+#confirm-keys { color: #c9c4ec; text-style: bold; }
