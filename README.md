@@ -1,4 +1,7 @@
 # tetromino-tui
+
+> Inspired by Tetris (1985, Alexey Pajitnov). Trademarks belong to their respective owners. Unaffiliated fan project.
+
 One line at a time.
 
 ![Hero](screenshots/hero.svg)
