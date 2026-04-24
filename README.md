@@ -24,6 +24,25 @@ make
 make run
 ```
 
+Run with music enabled:
+```bash
+make run ARGS="--music"
+# or:
+.venv/bin/python play.py --music
+```
+
+Run muted (no SFX):
+```bash
+make run ARGS="--no-sound"
+```
+
+## Updating
+```bash
+cd tetromino-tui
+make update
+make run
+```
+
 ## Controls
 | key        | action                   |
 |-----------:|:-------------------------|
@@ -38,8 +57,13 @@ make run
 | `h`        | high-score table         |
 | `g`        | toggle ghost piece       |
 | `s`        | toggle sound             |
+| `m`        | toggle music             |
 | `?`        | help overlay             |
 | `q`        | quit                     |
+
+## Music credits
+- Chiptune Tchaikovsky — Tomasz Kucza, [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- Cyberpunk Moonlight Sonata — Joth, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
 
 ## Testing
 ```bash

@@ -455,8 +455,10 @@ class TetrisApp(App):
         self._show_hint()
         self._update_header()
         self._refresh_hud()
-        # 60 Hz gravity tick.
-        self.set_interval(TICK_INTERVAL, self._tick)
+        # 60 Hz gravity tick (disabled under run_test/headless to keep
+        # QA scenarios deterministic).
+        if not self.is_headless:
+            self.set_interval(TICK_INTERVAL, self._tick)
         # 2 Hz pulse — cheap status-panel repaint for banner shimmer.
         self.set_interval(0.5, self._pulse)
         # 1 Hz top HUD ticker for elapsed time + score.
