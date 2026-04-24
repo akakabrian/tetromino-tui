@@ -1,35 +1,27 @@
-# tetris-tui ("Terminal Blocks")
+# tetris-tui
+One line at a time.
 
-Clean-room terminal Tetris-family game built with [Textual].
+![Hero](screenshots/hero.svg)
+![Gameplay](screenshots/gameplay.svg)
+![End screen](screenshots/endscreen.svg)
 
-A 10×20 matrix, seven tetrominoes, SRS rotation with wall kicks, a
-7-bag randomizer, hold, next-queue, ghost piece, soft/hard drop, lock
-delay with move-reset infinity, back-to-back tetris bonus, level-curve
-gravity, and a persistent top-10 high-score table.
+## About
+SRS rotations with real wall kicks. A proper 7-bag randomizer. Hold piece, next queue, level speed ramp, mouse + keyboard. The block-stacker that has no ending — just a thinner and thinner layer of hope between you and the top-out.
 
-Playfield: 10×20 visible + 2 hidden buffer rows. 7 tetrominoes
-(I/O/T/S/Z/J/L). Rotation system: **SRS** with full wall-kick tables.
-Scoring: single/double/triple/tetris = 100/300/500/800 × level,
-back-to-back tetris × 1.5. Soft drop 1 pt/cell, hard drop 2 pts/cell.
+## Screenshots
+![Hero](screenshots/hero.svg)
+![Gameplay](screenshots/gameplay.svg)
+![End screen](screenshots/endscreen.svg)
 
-See `DECISIONS.md` for the design rationale and the licensing stance.
-**"Terminal Blocks" is the shipped UI name** — Tetris is an Alexey
-Pajitnov / Tetris Company trademark and we don't reuse any
-Tetris-Company assets.
-
-## Quick start
-
+## Install & Run
 ```bash
-make            # create venv + install
-make run        # play
-make test       # run the QA harness (39 scenarios)
-make perf       # print performance baseline
+git clone https://github.com/akakabrian/tetris-tui
+cd tetris-tui
+make
+make run
 ```
 
-Requires Python ≥3.10. Textual is the only runtime dependency.
-
 ## Controls
-
 | key        | action                   |
 |-----------:|:-------------------------|
 | `← →`      | move left/right          |
@@ -46,20 +38,16 @@ Requires Python ≥3.10. Textual is the only runtime dependency.
 | `?`        | help overlay             |
 | `q`        | quit                     |
 
-## Architecture
+## Testing
+```bash
+make test       # QA harness
+make playtest   # scripted critical-path run
+make perf       # performance baseline
+```
 
-Pure-Python engine (`tetris_tui/engine.py`), Textual 4-panel UI
-(`tetris_tui/app.py`), modal screens (`tetris_tui/screens.py`),
-synth sounds (`tetris_tui/sounds.py`), XDG-dir persistence
-(`tetris_tui/state.py`). No native binding — DECISIONS.md §1 explains
-why the `tui-game-build` skill's SWIG recipe is unnecessary here.
+## License
+MIT
 
-Tests drive the app through Textual's `Pilot` and assert on live
-engine state; each scenario saves an SVG screenshot under `tests/out/`.
-
-## Licensing
-
-Code: MIT (wrapper). The mechanic is inspired by Tetris; no
-Tetris-Company assets are used or redistributed.
-
-[Textual]: https://textual.textualize.io/
+## Built with
+- [Textual](https://textual.textualize.io/) — the TUI framework
+- [tui-game-build](https://github.com/akakabrian/tui-foundry) — shared build process
