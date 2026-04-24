@@ -78,13 +78,16 @@ class GameOverScreen(ModalScreen[str]):
     ]
 
     def __init__(self, *, score: int, lines: int, level: int,
-                 rank: int | None, new_best: bool) -> None:
+                 rank: int | None, new_best: bool,
+                 elapsed: str = "0:00", seed: int | None = None) -> None:
         super().__init__()
         self._score = score
         self._lines = lines
         self._level = level
         self._rank = rank
         self._new_best = new_best
+        self._elapsed = elapsed
+        self._seed = seed
 
     def compose(self) -> ComposeResult:
         with Vertical(id="gameover-body"):
@@ -96,12 +99,16 @@ class GameOverScreen(ModalScreen[str]):
 
     def _build_markup(self) -> str:
         lines: list[str] = []
-        lines.append("[bold rgb(240,120,120)]GAME OVER[/]")
+        lines.append(" ✦   ✦   ✦   ✦   ✦   ✦   ✦ ")
+        lines.append("[bold rgb(240,120,120)]╔═ G A M E   O V E R ═╗[/]")
+        lines.append(" ✦   ✦   ✦   ✦   ✦   ✦   ✦ ")
         lines.append("")
         lines.append(f"  Final score  [bold rgb(230,200,110)]"
                      f"{self._score:>8,}[/]")
         lines.append(f"  Lines        {self._lines:>8,}")
         lines.append(f"  Level        {self._level:>8,}")
+        lines.append(f"  Time         {self._elapsed:>8}")
+        lines.append(f"  Seed         {str(self._seed or 'random'):>8}")
         lines.append("")
         if self._new_best:
             lines.append("[bold rgb(240,220,100)]NEW PERSONAL BEST![/]")

@@ -450,6 +450,7 @@ class TetrisApp(App):
     async def on_mount(self) -> None:
         self.matrix_view.border_title = "MATRIX"
         self.music.start()
+        self.sounds.play("dealwaste.wav")
         self._refresh_all_panels()
         self._show_hint()
         self._update_header()
@@ -521,8 +522,8 @@ class TetrisApp(App):
         events = self.game.tick(dt)
         # Drain any lock events (for sound).
         lock_events = self.game.pop_lock_events()
-        for le in lock_events:
-            self.sounds.play("lock")
+        for _le in lock_events:
+            pass
         # Line clear events — trigger flash, pick sound.
         if events:
             all_rows: list[int] = []
@@ -530,16 +531,13 @@ class TetrisApp(App):
             for ev in events:
                 all_rows.extend(ev.rows)
                 if ev.count == 4:
-                    self.sounds.play("tetris")
+                    self.sounds.play("winwon.wav")
                     msgs.append("[bold rgb(230,200,110)]TETRIS![/]")
                 elif ev.count == 3:
-                    self.sounds.play("clear")
                     msgs.append("[bold rgb(200,230,120)]triple![/]")
                 elif ev.count == 2:
-                    self.sounds.play("clear")
                     msgs.append("[bold]double[/]")
                 elif ev.count == 1:
-                    self.sounds.play("clear")
                     msgs.append("[dim]single[/]")
             self.matrix_view.trigger_line_flash(all_rows)
             self.flash_bar.set_message(" · ".join(msgs))
@@ -547,7 +545,7 @@ class TetrisApp(App):
             self.next_panel.refresh_panel()
         # Level up detection.
         if self.game.level != before_level:
-            self.sounds.play("levelup")
+            self.sounds.play("dealwaste.wav")
             self.flash_bar.set_message(
                 f"[bold rgb(180,210,255)]LEVEL {self.game.level}[/]"
             )
@@ -566,7 +564,7 @@ class TetrisApp(App):
 
     def _handle_game_over(self) -> None:
         self._high_score_recorded = True
-        self.sounds.play("gameover")
+        self.sounds.play("winwon.wav")
         # Record high score + see if it ranks.
         s = self.game.state()
         scores_before = list(self._state.get("high_scores", []))
@@ -594,7 +592,8 @@ class TetrisApp(App):
 
         self.push_screen(
             GameOverScreen(score=s["score"], lines=s["lines"],
-                           level=s["level"], rank=rank, new_best=new_best),
+                           level=s["level"], rank=rank, new_best=new_best,
+                           elapsed=self._elapsed_str(), seed=self._seed),
             _after,
         )
 
@@ -613,15 +612,19 @@ class TetrisApp(App):
         self._refresh_hud()
         self._update_header()
 
+    def _elapsed_str(self) -> str:
+        s = self.game.state()
+        elapsed = int(s["elapsed"])
+        mm, ss = divmod(elapsed, 60)
+        return f"{mm}:{ss:02d}"
+
     def action_move(self, direction: str) -> None:
         if self._maybe_dismiss_help():
             return
         if self.game.game_over or self.game.paused:
             return
         verb = "left" if direction == "left" else "right"
-        ok = self.game.action(verb)
-        if ok:
-            self.sounds.play("move")
+        self.game.action(verb)
         self._after_input()
 
     def action_soft_drop(self) -> None:
@@ -640,19 +643,17 @@ class TetrisApp(App):
         self.game.action("hard_drop")
         # Hard drop locks the piece immediately → drain lock/line events
         # synchronously so the flash fires with the same keystroke.
-        for le in self.game.pop_lock_events():
-            self.sounds.play("lock")
+        for _le in self.game.pop_lock_events():
+            pass
         evs = self.game.pop_events()
         if evs:
             rows: list[int] = []
             for ev in evs:
                 rows.extend(ev.rows)
                 if ev.count == 4:
-                    self.sounds.play("tetris")
+                    self.sounds.play("winwon.wav")
                     self.flash_bar.set_message(
                         "[bold rgb(230,200,110)]TETRIS![/]")
-                else:
-                    self.sounds.play("clear")
             self.matrix_view.trigger_line_flash(rows)
         if self.game.game_over and not self._high_score_recorded:
             self._handle_game_over()
@@ -664,7 +665,9 @@ class TetrisApp(App):
         if self.game.game_over or self.game.paused:
             return
         if self.game.action("rotate_cw"):
-            self.sounds.play("rotate")
+            self.sounds.play("flip.wav")
+        else:
+            self.sounds.play("nomove.wav")
         self._after_input()
 
     def action_rotate_ccw(self) -> None:
@@ -673,7 +676,9 @@ class TetrisApp(App):
         if self.game.game_over or self.game.paused:
             return
         if self.game.action("rotate_ccw"):
-            self.sounds.play("rotate")
+            self.sounds.play("flip.wav")
+        else:
+            self.sounds.play("nomove.wav")
         self._after_input()
 
     def action_hold_piece(self) -> None:
@@ -682,9 +687,10 @@ class TetrisApp(App):
         if self.game.game_over or self.game.paused:
             return
         if self.game.action("hold"):
-            self.sounds.play("hold")
+            self.sounds.play("flip.wav")
             self.flash_bar.set_message("[dim]held[/]")
         else:
+            self.sounds.play("nomove.wav")
             self.flash_bar.set_message("[dim]hold already used[/]")
         self._after_input()
 
@@ -721,6 +727,7 @@ class TetrisApp(App):
         self.hold_panel._last = ("", False)
         self.stats_panel.game = self.game
         self._high_score_recorded = False
+        self.sounds.play("dealwaste.wav")
         self._refresh_all_panels()
         self.flash_bar.set_message("[bold green]new game[/]")
         self._update_header()
