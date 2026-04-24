@@ -32,6 +32,7 @@ Keys:
 from __future__ import annotations
 
 import time
+from typing import Callable
 
 from rich.segment import Segment
 from rich.style import Style
@@ -47,7 +48,7 @@ from textual.widgets import Static
 from . import pieces as pcs
 from . import tiles
 from .engine import (
-    Game, BUFFER_H, MATRIX_H, MATRIX_W, VISIBLE_H,
+    Game, BUFFER_H, MATRIX_W, VISIBLE_H,
 )
 from . import state as state_mod
 from .music import MusicPlayer
@@ -62,6 +63,47 @@ TICK_INTERVAL = 1.0 / TICK_HZ
 
 # Line-clear flash duration (seconds).
 LINE_FLASH_S = 0.25
+
+BANNER_BG = "rgb(7,25,15)"
+BANNER_RULE_STYLE = Style.parse(f"rgb(143,170,131) on {BANNER_BG}")
+BANNER_LABEL_STYLE = Style.parse(f"bold rgb(255,212,90) on {BANNER_BG}")
+
+
+class SectionBanner(Widget):
+    """One-row horizontal rule with inline labels stamped in gold."""
+
+    def __init__(self, label_builder: Callable[[int], list[tuple[int, str]]],
+                 *, id: str | None = None) -> None:
+        super().__init__(id=id)
+        self._label_builder = label_builder
+
+    def render_line(self, y: int) -> Strip:
+        width = max(1, self.size.width)
+        if y != 0:
+            return Strip.blank(width)
+
+        chars = ["╌"] * width
+        styles = [BANNER_RULE_STYLE] * width
+
+        for x, label in self._label_builder(width):
+            for i, ch in enumerate(label):
+                xi = x + i
+                if 0 <= xi < width:
+                    chars[xi] = ch
+                    styles[xi] = BANNER_LABEL_STYLE
+
+        segments: list[Segment] = []
+        cur_style = styles[0]
+        cur_text = chars[0]
+        for i in range(1, width):
+            if styles[i] == cur_style:
+                cur_text += chars[i]
+            else:
+                segments.append(Segment(cur_text, cur_style))
+                cur_text = chars[i]
+                cur_style = styles[i]
+        segments.append(Segment(cur_text, cur_style))
+        return Strip(segments, width)
 
 
 class MatrixView(Widget):
@@ -296,34 +338,6 @@ class FlashBar(Static):
         self.update(Text.from_markup(msg))
 
 
-class TopHUD(Horizontal):
-    """Top chrome: title / time / moves / score."""
-
-    def compose(self) -> ComposeResult:
-        yield Static("◆ TERMINAL BLOCKS ◆", id="hud-title")
-        yield Static("TIME 0:00", id="hud-time")
-        yield Static("MOVES 0", id="hud-moves")
-        yield Static("SCORE 0", id="hud-score")
-
-    def refresh_hud(self, app: "TetrisApp") -> None:
-        if not self.is_mounted:
-            return
-        s = app.game.state()
-        elapsed = int(s["elapsed"])
-        mm, ss = divmod(elapsed, 60)
-        try:
-            app.query_one("#hud-title", Static).update("◆ TERMINAL BLOCKS ◆")
-            app.query_one("#hud-time", Static).update(f"TIME {mm}:{ss:02d}")
-            app.query_one("#hud-moves", Static).update(
-                f"MOVES {s['pieces_locked']}"
-            )
-            app.query_one("#hud-score", Static).update(
-                f"SCORE {s['score']:,} · L{s['level']} · {s['lines']}L"
-            )
-        except Exception:
-            return
-
-
 _HELP_TEXT = (
     "[bold]Terminal Blocks[/]\n\n"
     "[bold]Goal[/]  clear rows by filling them end-to-end.\n"
@@ -401,7 +415,12 @@ class TetrisApp(App):
         self.next_panel = NextPanel(self.game)
         self.hold_panel = HoldPanel(self.game)
         self.stats_panel = StatsPanel(self.game)
-        self.top_hud = TopHUD(id="top-hud")
+        self.stats_banner = SectionBanner(
+            self._score_banner_labels, id="section-main")
+        self.side_banner = SectionBanner(
+            self._next_banner_labels, id="section-side")
+        self.game_banner = SectionBanner(
+            self._game_banner_labels, id="section-game")
         self.flash_bar = FlashBar(" ", id="flash-bar")
         self.help_overlay = HelpOverlay()
         self.help_overlay.id = "help-overlay"
@@ -436,9 +455,12 @@ class TetrisApp(App):
     # ---- layout --------------------------------------------------------
 
     def compose(self) -> ComposeResult:
-        yield self.top_hud
+        with Horizontal(id="section-row"):
+            yield self.stats_banner
+            yield self.side_banner
         with Horizontal(id="body"):
             with Vertical(id="matrix-col"):
+                yield self.game_banner
                 yield self.matrix_view
             with Vertical(id="side"):
                 yield self.next_panel
@@ -448,7 +470,7 @@ class TetrisApp(App):
         yield self.help_overlay
 
     async def on_mount(self) -> None:
-        self.matrix_view.border_title = "MATRIX"
+        self.matrix_view.border_title = ""
         self.music.start()
         self.sounds.play("dealwaste.wav")
         self._refresh_all_panels()
@@ -471,6 +493,9 @@ class TetrisApp(App):
 
     def _refresh_all_panels(self) -> None:
         self.matrix_view.refresh()
+        self.stats_banner.refresh()
+        self.side_banner.refresh()
+        self.game_banner.refresh()
         self.next_panel.refresh_panel()
         self.hold_panel.refresh_panel()
         self.stats_panel.refresh_panel()
@@ -506,7 +531,32 @@ class TetrisApp(App):
         self.stats_panel.refresh_panel(force=True)
 
     def _refresh_hud(self) -> None:
-        self.top_hud.refresh_hud(self)
+        self.stats_banner.refresh()
+
+    def _score_banner_labels(self, width: int) -> list[tuple[int, str]]:
+        s = self.game.state()
+        labels = [
+            f" SCORE {s['score']:,} ",
+            f" LINES {s['lines']} ",
+            f" LEVEL {s['level']} ",
+        ]
+        centers = [width // 6, width // 2, (width * 5) // 6]
+        out: list[tuple[int, str]] = []
+        prev_end = -1
+        for center, label in zip(centers, labels):
+            x = max(1, center - len(label) // 2)
+            if x <= prev_end + 1:
+                x = prev_end + 2
+            x = min(max(1, x), max(1, width - len(label)))
+            out.append((x, label))
+            prev_end = x + len(label) - 1
+        return out
+
+    def _next_banner_labels(self, width: int) -> list[tuple[int, str]]:
+        return [(2 if width >= 6 else 0, " NEXT ")]
+
+    def _game_banner_labels(self, width: int) -> list[tuple[int, str]]:
+        return [(2 if width >= 11 else 0, " TETROMINO ")]
 
     # ---- ticker --------------------------------------------------------
 
