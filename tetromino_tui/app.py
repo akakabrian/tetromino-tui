@@ -50,8 +50,9 @@ from .engine import (
     Game, BUFFER_H, MATRIX_H, MATRIX_W, VISIBLE_H,
 )
 from . import state as state_mod
+from .music import MusicPlayer
 from .screens import ConfirmScreen, GameOverScreen, HighScoresScreen
-from .sounds import Sounds
+from .sounds import SoundBoard
 
 
 # Tick cadence — the engine runs its gravity in `tick(dt)` so we can
@@ -340,11 +341,15 @@ _HELP_TEXT = (
     "  h             high scores\n"
     "  g             ghost piece on/off\n"
     "  s             sound on/off\n"
+    "  m             music on/off\n"
     "  ?             toggle this help\n"
     "  q             quit\n\n"
     "[bold]Scoring[/]  single/double/triple/tetris = 100/300/500/800 × level\n"
     "          consecutive tetrises get a back-to-back 1.5× bonus.\n"
     "          Level up every 10 lines cleared.\n\n"
+    "[bold]Music credits[/]\n"
+    "  Chiptune Tchaikovsky — Tomasz Kucza, CC-BY 4.0\n"
+    "  Cyberpunk Moonlight Sonata — Joth, CC0 1.0\n\n"
     "[dim]press any key to dismiss[/]"
 )
 
@@ -370,6 +375,7 @@ class TetrisApp(App):
         Binding("h", "toggle_scores", "Scores"),
         Binding("g", "toggle_ghost", "Ghost"),
         Binding("s", "toggle_sound", "Sound"),
+        Binding("m", "toggle_music", "Music"),
         Binding("question_mark", "toggle_help", "Help"),
         # Movement — priority so nothing eats them.
         Binding("left",  "move('left')",  "←", show=False, priority=True),
@@ -381,11 +387,13 @@ class TetrisApp(App):
         Binding("x",     "rotate_cw",     "x", show=False, priority=True),
     ]
 
-    def __init__(self, *, start_level: int = 1, seed: int | None = None) -> None:
+    def __init__(self, *, start_level: int = 1, seed: int | None = None,
+                 music: bool = False, sound: bool = True) -> None:
         super().__init__()
         self._state = state_mod.load()
         self._start_level = start_level
         self._seed = seed
+        self._music_enabled = music
         self.game = Game(start_level=start_level, seed=seed)
         self.matrix_view = MatrixView(self.game)
         self.matrix_view.ghost_enabled = bool(
@@ -397,9 +405,10 @@ class TetrisApp(App):
         self.flash_bar = FlashBar(" ", id="flash-bar")
         self.help_overlay = HelpOverlay()
         self.help_overlay.id = "help-overlay"
-        # Sounds enabled from persisted setting OR env var.
-        enabled = bool(state_mod.get_setting(self._state, "sound", False))
-        self.sounds = Sounds(enabled=enabled)
+        # Sound defaults from settings unless disabled via CLI.
+        enabled = bool(state_mod.get_setting(self._state, "sound", False)) and sound
+        self.sounds = SoundBoard(enabled=enabled)
+        self.music = MusicPlayer(enabled=self._music_enabled)
         # Tick bookkeeping.
         self._last_tick_mono: float | None = None
         # True if we've already recorded a high score for this game-over
@@ -440,6 +449,7 @@ class TetrisApp(App):
 
     async def on_mount(self) -> None:
         self.matrix_view.border_title = "MATRIX"
+        self.music.start()
         self._refresh_all_panels()
         self._show_hint()
         self._update_header()
@@ -450,6 +460,9 @@ class TetrisApp(App):
         self.set_interval(0.5, self._pulse)
         # 1 Hz top HUD ticker for elapsed time + score.
         self.set_interval(1.0, self._refresh_hud)
+
+    async def on_unmount(self) -> None:
+        self.music.stop()
 
     # ---- helpers -------------------------------------------------------
 
@@ -765,12 +778,24 @@ class TetrisApp(App):
             f"sound {'on' if on else 'off'}[/]"
         )
 
+    def action_toggle_music(self) -> None:
+        if self._maybe_dismiss_help():
+            return
+        on = self.music.toggle()
+        self.flash_bar.set_message(
+            f"[bold {'green' if on else 'yellow'}]"
+            f"music {'on' if on else 'off'}[/]"
+        )
 
-def run(*, start_level: int = 1, seed: int | None = None) -> None:
-    app = TetrisApp(start_level=start_level, seed=seed)
+
+def run(*, start_level: int = 1, seed: int | None = None,
+        music: bool = False, sound: bool = True) -> None:
+    app = TetrisApp(start_level=start_level, seed=seed,
+                    music=music, sound=sound)
     try:
         app.run()
     finally:
+        app.music.stop()
         # Terminal mouse tracking reset (inherited discipline).
         import sys
         sys.stdout.write(
