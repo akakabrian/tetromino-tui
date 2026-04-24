@@ -329,7 +329,8 @@ class StatsPanel(Static):
             t.append("←→ move   ↓ soft   space hard\n", style="dim")
             t.append("z/x rotate   c hold   p pause\n", style="dim")
             t.append("h scores  g ghost  s sound\n", style="dim")
-            t.append("? help    n new    q quit\n", style="dim")
+            t.append("m music   r rules  ? help\n", style="dim")
+            t.append("n new     q quit\n", style="dim")
         self.update(t)
 
 
@@ -357,6 +358,7 @@ _HELP_TEXT = (
     "  g             ghost piece on/off\n"
     "  s             sound on/off\n"
     "  m             music on/off\n"
+    "  r             rules\n"
     "  ?             toggle this help\n"
     "  q             quit\n\n"
     "[bold]Scoring[/]  single/double/triple/tetris = 100/300/500/800 × level\n"

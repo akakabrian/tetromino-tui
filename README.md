@@ -58,6 +58,7 @@ make run
 | `g`        | toggle ghost piece       |
 | `s`        | toggle sound             |
 | `m`        | toggle music             |
+| `r`        | rules modal              |
 | `?`        | help overlay             |
 | `q`        | quit                     |
 
