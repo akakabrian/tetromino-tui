@@ -26,13 +26,13 @@ from rich.style import Style
 # (fg, bg) per piece letter. Bright fg on deep bg so filled blocks pop
 # against the matrix grid background.
 _PALETTE: dict[str, tuple[str, str]] = {
-    "I": ("rgb(40,230,230)", "rgb(20,90,95)"),
-    "O": ("rgb(250,220,50)", "rgb(100,85,20)"),
-    "T": ("rgb(200,95,230)", "rgb(80,30,100)"),
-    "S": ("rgb(90,230,110)", "rgb(30,95,40)"),
-    "Z": ("rgb(240,80,80)", "rgb(100,30,30)"),
-    "J": ("rgb(70,110,250)", "rgb(25,40,100)"),
-    "L": ("rgb(245,160,60)", "rgb(100,65,20)"),
+    "I": ("rgb(51,246,255)", "rgb(8,98,108)"),
+    "O": ("rgb(255,218,64)", "rgb(122,96,18)"),
+    "T": ("rgb(218,118,255)", "rgb(91,34,116)"),
+    "S": ("rgb(139,255,98)", "rgb(36,105,40)"),
+    "Z": ("rgb(255,92,116)", "rgb(118,30,44)"),
+    "J": ("rgb(70,126,255)", "rgb(24,52,128)"),
+    "L": ("rgb(255,151,58)", "rgb(121,64,15)"),
 }
 
 # Background for empty matrix cells + gutter.

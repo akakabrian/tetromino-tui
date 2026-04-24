@@ -274,8 +274,23 @@ def _render_piece_minigrid(piece: str, rotation: int = 0) -> Text:
     return t
 
 
+def _render_piece_preview_rows(piece: str, rotation: int = 0) -> list[Text]:
+    """Render a fixed 4x4 preview as rows so multiple pieces can sit
+    side-by-side in the NEXT box."""
+    offsets = set(pcs.shape_cells(piece, rotation))
+    style_on = tiles.filled_style(piece)
+    style_off = Style.parse("on rgb(18,16,24)")
+    rows: list[Text] = []
+    for y in range(4):
+        row = Text()
+        for x in range(4):
+            row.append("  ", style=style_on if (x, y) in offsets else style_off)
+        rows.append(row)
+    return rows
+
+
 class NextPanel(Static):
-    """Shows the next 5 upcoming pieces, stacked vertically."""
+    """Shows the next pieces in a compact horizontal preview."""
 
     def __init__(self, game: Game) -> None:
         super().__init__("")
@@ -284,15 +299,19 @@ class NextPanel(Static):
         self._last_queue: list[str] = []
 
     def refresh_panel(self) -> None:
-        q = self.game.peek_queue()
+        q = self.game.peek_queue()[:3]
         if q == self._last_queue:
             return
         self._last_queue = list(q)
         t = Text()
-        for i, piece in enumerate(q):
-            t.append(_render_piece_minigrid(piece))
-            if i < len(q) - 1:
-                t.append("\n\n")
+        previews = [_render_piece_preview_rows(piece) for piece in q]
+        for row_idx in range(4):
+            for i, rows in enumerate(previews):
+                t.append(rows[row_idx])
+                if i < len(previews) - 1:
+                    t.append("  ")
+            if row_idx < 3:
+                t.append("\n")
         self.update(t)
 
 
@@ -321,49 +340,88 @@ class HoldPanel(Static):
             self.update(t)
 
 
-class StatsPanel(Static):
-    """Score / lines / level / time / pause / game-over banner."""
+def _meter(filled: int, total: int = 10) -> str:
+    filled = max(0, min(total, filled))
+    return "█" * filled + "░" * (total - filled)
+
+
+def _sparkline(score: int, width: int = 8) -> str:
+    glyphs = "▁▂▃▄▅▆▇█"
+    if score <= 0:
+        return glyphs[0] * width
+    return "".join(glyphs[min(len(glyphs) - 1, (score // 250 + i) % 8)]
+                   for i in range(width))
+
+
+class MetricCard(Static):
+    """One right-rail value card with a large number and a small meter."""
+
+    def __init__(self, title: str, kind: str, accent: str, *, id: str) -> None:
+        super().__init__("")
+        self.border_title = title
+        self._kind = kind
+        self._accent = accent
+        self._last_markup = ""
+        self.id = id
+        self.add_class("metric-card")
+
+    def refresh_card(self, state: dict, *, pulse: bool = False) -> None:
+        if self._kind == "score":
+            value = f"{state['score']:07,}"
+            detail = _sparkline(state["score"])
+        elif self._kind == "lines":
+            value = f"{state['lines']:03d}"
+            progress = state["lines"] % 10
+            remaining = 10 - progress if progress else 10
+            detail = f"NEXT {remaining:02d}  {_meter(progress)}"
+        else:
+            value = f"{state['level']:02d}"
+            progress = state["lines"] % 10
+            detail = f"XP {progress:02d}/10  {_meter(progress)}"
+
+        status = ""
+        if state["game_over"]:
+            status = "\n[bold red]GAME OVER[/]"
+        elif state["paused"] and pulse:
+            status = "\n[bold yellow]PAUSED[/]"
+
+        markup = (
+            f"[bold {self._accent}]{value}[/]\n"
+            f"[{self._accent}]{detail}[/]"
+            f"{status}"
+        )
+        if markup == self._last_markup:
+            return
+        self._last_markup = markup
+        self.update(Text.from_markup(markup))
+
+
+class StatsPanel(Vertical):
+    """Stacked score / lines / level cards."""
 
     def __init__(self, game: Game) -> None:
-        super().__init__("")
+        super().__init__()
         self.game = game
-        self.border_title = "STATS"
+        self.score_card = MetricCard(
+            "SCORE", "score", "#9bd36c", id="score-card")
+        self.lines_card = MetricCard(
+            "LINES", "lines", "#5ad6d8", id="lines-card")
+        self.level_card = MetricCard(
+            "LEVEL", "level", "#c688d9", id="level-card")
         self._pulse_phase = False
+
+    def compose(self) -> ComposeResult:
+        yield self.score_card
+        yield self.lines_card
+        yield self.level_card
 
     def refresh_panel(self, *, force: bool = False) -> None:
         if force:
             self._pulse_phase = not self._pulse_phase
         s = self.game.state()
-        t = Text()
-        t.append("Score  ", style="bold")
-        t.append(f"{s['score']:>10,}\n", style="bold rgb(230,200,110)")
-        t.append("Lines  ", style="bold")
-        t.append(f"{s['lines']:>10}\n", style="rgb(200,230,120)")
-        t.append("Level  ", style="bold")
-        t.append(f"{s['level']:>10}\n", style="rgb(180,210,255)")
-        elapsed = int(s["elapsed"])
-        mm, ss = divmod(elapsed, 60)
-        t.append("Time   ")
-        t.append(f"{mm:>7d}:{ss:02d}\n", style="dim")
-        t.append(f"Pieces   {s['pieces_locked']:>8}\n", style="dim")
-        if s["b2b"]:
-            t.append("B2B streak active\n", style="bold rgb(230,200,110)")
-        t.append("\n")
-        if s["game_over"]:
-            bg = "rgb(170,40,40)" if self._pulse_phase else "rgb(130,20,20)"
-            t.append("  GAME OVER  \n", style=f"bold white on {bg}")
-            t.append("press [bold]n[/] for new game\n")
-        elif s["paused"]:
-            bg = "rgb(230,200,110)" if self._pulse_phase else "rgb(180,160,70)"
-            t.append("  PAUSED  \n", style=f"bold black on {bg}")
-            t.append("press [bold]p[/] to resume\n")
-        else:
-            t.append("←→ move   ↓ soft   space hard\n", style="dim")
-            t.append("z/x rotate   c hold   p pause\n", style="dim")
-            t.append("h scores  g ghost  s sound\n", style="dim")
-            t.append("m music   r rules  ? help\n", style="dim")
-            t.append("n new     q quit\n", style="dim")
-        self.update(t)
+        self.score_card.refresh_card(s, pulse=self._pulse_phase)
+        self.lines_card.refresh_card(s, pulse=self._pulse_phase)
+        self.level_card.refresh_card(s, pulse=self._pulse_phase)
 
 
 class FlashBar(Static):

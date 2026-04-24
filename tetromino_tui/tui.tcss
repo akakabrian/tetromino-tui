@@ -57,9 +57,8 @@ Screen {
 }
 
 #matrix-col {
-    width: 28;
-    min-width: 24;
-    max-width: 32;
+    width: 1fr;
+    min-width: 28;
     height: 1fr;
 }
 
@@ -68,8 +67,9 @@ Screen {
 }
 
 #side {
-    width: 1fr;
-    min-width: 22;
+    width: 42;
+    min-width: 34;
+    max-width: 46;
     height: 1fr;
 }
 
@@ -82,30 +82,58 @@ MatrixView {
 }
 
 NextPanel {
-    height: 12;
-    border: round #375a2d;
-    border-title-color: #c9cfb8;
+    height: 6;
+    border: round #d99a2b;
+    border-title-color: #ffd45a;
     border-title-style: bold;
     padding: 0 1;
     background: #0c2a17;
+    margin-bottom: 1;
+    content-align: center middle;
 }
 
 HoldPanel {
-    height: 6;
-    border: round #375a2d;
-    border-title-color: #c9cfb8;
+    height: 5;
+    border: round #d99a2b;
+    border-title-color: #ffd45a;
     border-title-style: bold;
     padding: 0 1;
     background: #0c2a17;
+    margin-bottom: 1;
+    content-align: center middle;
 }
 
 StatsPanel {
     height: 1fr;
-    border: round #375a2d;
-    border-title-color: #c9cfb8;
-    border-title-style: bold;
+    padding: 0;
+    background: #07190f;
+}
+
+.metric-card {
+    height: 4;
     padding: 0 1;
+    margin-bottom: 1;
     background: #0c2a17;
+    content-align: left middle;
+    text-style: bold;
+}
+
+#score-card {
+    border: round #7cae52;
+    border-title-color: #9bd36c;
+    border-title-style: bold;
+}
+
+#lines-card {
+    border: round #45acae;
+    border-title-color: #5ad6d8;
+    border-title-style: bold;
+}
+
+#level-card {
+    border: round #9d67ad;
+    border-title-color: #c688d9;
+    border-title-style: bold;
 }
 
 #flash-bar {
