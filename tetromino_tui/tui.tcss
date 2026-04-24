@@ -140,9 +140,17 @@ StatsPanel {
     height: 1;
     padding: 0 1;
     margin-top: 1;
-    margin-bottom: 1;
+    margin-bottom: 0;
     background: #07190f;
     color: #6b8462;
+    text-style: none;
+}
+
+#footer-hints {
+    height: 1;
+    padding: 0 1;
+    background: #0c2a17;
+    color: #8faa83;
     text-style: none;
 }
 

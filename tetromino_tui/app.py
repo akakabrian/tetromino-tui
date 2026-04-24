@@ -430,6 +430,26 @@ class FlashBar(Static):
         self.update(Text.from_markup(msg))
 
 
+class FooterHints(Static):
+    """Persistent compact key-hint strip at the bottom of the app."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            Text.from_markup(
+                "[bold #ffd45a]← → move[/] · "
+                "[bold #ffd45a]space hard drop[/] · "
+                "[bold #ffd45a]z/x rotate[/] · "
+                "[bold #ffd45a]c hold[/] · "
+                "[bold #ffd45a]p pause[/] · "
+                "[bold #ffd45a]r rules[/] · "
+                "[bold #ffd45a]m music[/] · "
+                "[bold #ffd45a]? help[/] · "
+                "[bold #ffd45a]q quit[/]"
+            ),
+            id="footer-hints",
+        )
+
+
 _HELP_TEXT = (
     "[bold]Terminal Blocks[/]\n\n"
     "[bold]Goal[/]  clear rows by filling them end-to-end.\n"
@@ -524,6 +544,7 @@ class TetrisApp(App):
         self.game_banner = SectionBanner(
             self._game_banner_labels, id="section-game")
         self.flash_bar = FlashBar(" ", id="flash-bar")
+        self.footer_hints = FooterHints()
         self.help_overlay = HelpOverlay()
         self.help_overlay.id = "help-overlay"
         # Sound defaults from settings unless disabled via CLI.
@@ -572,6 +593,7 @@ class TetrisApp(App):
                 yield self.hold_panel
                 yield self.stats_panel
         yield self.flash_bar
+        yield self.footer_hints
         yield self.help_overlay
 
     async def on_mount(self) -> None:
@@ -628,7 +650,7 @@ class TetrisApp(App):
             )
         else:
             self.flash_bar.set_message(
-                "[dim]←→ move · ↑/x rotate · z CCW · space drop · c hold · m music[/]"
+                "[dim]ready · clear rows · back-to-back tetrises score more[/]"
             )
 
     def _pulse(self) -> None:

@@ -145,7 +145,7 @@ class GameOverScreen(ModalScreen[str]):
         with Vertical(id="gameover-body"):
             yield Static(self._build_markup(), id="gameover-msg")
             yield Static(
-                "[bold]n[/] new game   [bold]escape[/] close",
+                "[bold]n new game[/]   [bold]escape close[/]",
                 id="gameover-keys",
             )
 
