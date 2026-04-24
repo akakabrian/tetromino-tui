@@ -107,6 +107,38 @@ class SectionBanner(Widget):
         return Strip(segments, width)
 
 
+class HudPill(Static):
+    """Two-line top HUD chip with a compact label and prominent value."""
+
+    def __init__(
+        self,
+        label: str,
+        value_builder: Callable[[], str],
+        *,
+        accent: str,
+        id: str,
+    ) -> None:
+        super().__init__("")
+        self._label = label
+        self._value_builder = value_builder
+        self._accent = accent
+        self._last_value = ""
+        self.id = id
+        self.add_class("hud-pill")
+
+    def refresh_pill(self) -> None:
+        value = self._value_builder()
+        if value == self._last_value:
+            return
+        self._last_value = value
+        self.update(
+            Text.from_markup(
+                f"[bold {self._accent}]{self._label}[/]\n"
+                f"[bold {self._accent}]{value}[/]"
+            )
+        )
+
+
 class MatrixView(Widget):
     """Renders the 10×20 visible matrix + ghost + active piece overlay.
 
@@ -419,10 +451,18 @@ class TetrisApp(App):
         self.next_panel = NextPanel(self.game)
         self.hold_panel = HoldPanel(self.game)
         self.stats_panel = StatsPanel(self.game)
-        self.stats_banner = SectionBanner(
-            self._score_banner_labels, id="section-main")
-        self.side_banner = SectionBanner(
-            self._next_banner_labels, id="section-side")
+        self.brand_banner = Static(
+            "[bold #ffd45a]▲  TETROMINO  /  AURORA  ▲[/]",
+            id="brand-banner",
+        )
+        self.time_pill = HudPill(
+            "TIME", self._hud_time, accent="#ffd45a", id="hud-time")
+        self.score_pill = HudPill(
+            "SCORE", self._hud_score, accent="#9bd36c", id="hud-score")
+        self.level_pill = HudPill(
+            "LEVEL", self._hud_level, accent="#c688d9", id="hud-level")
+        self.lines_pill = HudPill(
+            "LINES", self._hud_lines, accent="#5ad6d8", id="hud-lines")
         self.game_banner = SectionBanner(
             self._game_banner_labels, id="section-game")
         self.flash_bar = FlashBar(" ", id="flash-bar")
@@ -459,9 +499,12 @@ class TetrisApp(App):
     # ---- layout --------------------------------------------------------
 
     def compose(self) -> ComposeResult:
-        with Horizontal(id="section-row"):
-            yield self.stats_banner
-            yield self.side_banner
+        with Horizontal(id="hud-row"):
+            yield self.brand_banner
+            yield self.time_pill
+            yield self.score_pill
+            yield self.level_pill
+            yield self.lines_pill
         with Horizontal(id="body"):
             with Vertical(id="matrix-col"):
                 yield self.game_banner
@@ -497,12 +540,11 @@ class TetrisApp(App):
 
     def _refresh_all_panels(self) -> None:
         self.matrix_view.refresh()
-        self.stats_banner.refresh()
-        self.side_banner.refresh()
         self.game_banner.refresh()
         self.next_panel.refresh_panel()
         self.hold_panel.refresh_panel()
         self.stats_panel.refresh_panel()
+        self._refresh_hud()
 
     def _update_header(self) -> None:
         s = self.game.state()
@@ -535,29 +577,27 @@ class TetrisApp(App):
         self.stats_panel.refresh_panel(force=True)
 
     def _refresh_hud(self) -> None:
-        self.stats_banner.refresh()
+        self.time_pill.refresh_pill()
+        self.score_pill.refresh_pill()
+        self.level_pill.refresh_pill()
+        self.lines_pill.refresh_pill()
 
-    def _score_banner_labels(self, width: int) -> list[tuple[int, str]]:
+    def _hud_time(self) -> str:
         s = self.game.state()
-        labels = [
-            f" SCORE {s['score']:,} ",
-            f" LINES {s['lines']} ",
-            f" LEVEL {s['level']} ",
-        ]
-        centers = [width // 6, width // 2, (width * 5) // 6]
-        out: list[tuple[int, str]] = []
-        prev_end = -1
-        for center, label in zip(centers, labels):
-            x = max(1, center - len(label) // 2)
-            if x <= prev_end + 1:
-                x = prev_end + 2
-            x = min(max(1, x), max(1, width - len(label)))
-            out.append((x, label))
-            prev_end = x + len(label) - 1
-        return out
+        elapsed = int(s["elapsed"])
+        hh = elapsed // 3600
+        mm = (elapsed // 60) % 60
+        ss = elapsed % 60
+        return f"{hh:02d}:{mm:02d}:{ss:02d}"
 
-    def _next_banner_labels(self, width: int) -> list[tuple[int, str]]:
-        return [(2 if width >= 6 else 0, " NEXT ")]
+    def _hud_score(self) -> str:
+        return f"{self.game.state()['score']:07,}"
+
+    def _hud_level(self) -> str:
+        return f"{self.game.state()['level']:02d}"
+
+    def _hud_lines(self) -> str:
+        return f"{self.game.state()['lines']:03d}"
 
     def _game_banner_labels(self, width: int) -> list[tuple[int, str]]:
         return [(2 if width >= 11 else 0, " TETROMINO ")]

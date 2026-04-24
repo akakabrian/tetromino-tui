@@ -1,27 +1,55 @@
-/* tetromino-tui — section banners + dim context line */
+/* tetromino-tui — chip HUD + side cards + dim context line */
 
 Screen {
     background: #07190f;
     color: #efe8d1;
 }
 
-#section-row {
-    height: 1;
+#hud-row {
+    height: 4;
     padding: 0;
-    margin: 0;
+    margin-bottom: 1;
 }
 
-#section-main {
-    width: 28;
-    min-width: 24;
-    max-width: 32;
-    height: 1;
-}
-
-#section-side {
+#brand-banner {
     width: 1fr;
-    min-width: 22;
-    height: 1;
+    height: 4;
+    min-width: 34;
+    border: round #d99a2b;
+    background: #0c2a17;
+    color: #ffd45a;
+    text-style: bold;
+    content-align: center middle;
+}
+
+.hud-pill {
+    height: 4;
+    padding: 0 1;
+    margin-left: 1;
+    background: #0c2a17;
+    text-align: center;
+    content-align: center middle;
+    text-style: bold;
+}
+
+#hud-time {
+    width: 14;
+    border: round #d99a2b;
+}
+
+#hud-score {
+    width: 16;
+    border: round #7cae52;
+}
+
+#hud-level {
+    width: 10;
+    border: round #9d67ad;
+}
+
+#hud-lines {
+    width: 10;
+    border: round #45acae;
 }
 
 #body {
