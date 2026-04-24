@@ -24,13 +24,13 @@ from typing import Awaitable, Callable
 import tempfile as _tempfile
 os.environ["XDG_DATA_HOME"] = _tempfile.mkdtemp(prefix="tetris-qa-")
 
-from tetris_tui.app import TetrisApp  # noqa: E402
-from tetris_tui.engine import (  # noqa: E402
+from tetromino_tui.app import TetrisApp  # noqa: E402
+from tetromino_tui.engine import (  # noqa: E402
     Game, ActivePiece, MATRIX_W, MATRIX_H, BUFFER_H, VISIBLE_H,
     LINE_SCORES, gravity_frames,
 )
-from tetris_tui import pieces as pcs  # noqa: E402
-from tetris_tui import state as state_mod  # noqa: E402
+from tetromino_tui import pieces as pcs  # noqa: E402
+from tetromino_tui import state as state_mod  # noqa: E402
 
 OUT = Path(__file__).resolve().parent / "out"
 OUT.mkdir(exist_ok=True)
@@ -564,7 +564,7 @@ async def s_next_queue_has_five(app, pilot):
 
 async def s_scores_screen_opens(app, pilot):
     """h opens HighScoresScreen; escape dismisses."""
-    from tetris_tui.screens import HighScoresScreen
+    from tetromino_tui.screens import HighScoresScreen
     await pilot.press("h")
     await pilot.pause()
     assert isinstance(app.screen, HighScoresScreen)

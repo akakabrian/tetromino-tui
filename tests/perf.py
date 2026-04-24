@@ -1,4 +1,4 @@
-"""Performance baseline for tetris-tui.
+"""Performance baseline for tetromino-tui.
 
 Tetris is a small matrix (10×20) so rendering is never going to be the
 bottleneck, but we still want a baseline so a future "polish" commit
@@ -21,7 +21,7 @@ import tempfile as _tempfile
 os.environ.setdefault("XDG_DATA_HOME",
                       _tempfile.mkdtemp(prefix="tetris-perf-"))
 
-from tetris_tui.engine import Game, ActivePiece, MATRIX_H, MATRIX_W  # noqa: E402
+from tetromino_tui.engine import Game, ActivePiece, MATRIX_H, MATRIX_W  # noqa: E402
 
 
 def bench(name, fn, n=1000):
@@ -120,7 +120,7 @@ def bench_line_clear_scan():
 
 
 def main(argv):
-    print("tetris-tui perf baseline")
+    print("tetromino-tui perf baseline")
     print("-" * 72)
     bench_tick()
     bench_hard_drop()

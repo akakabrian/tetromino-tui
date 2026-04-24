@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import argparse
 
-from tetris_tui.app import run
+from tetromino_tui.app import run
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(prog="tetris-tui")
+    p = argparse.ArgumentParser(prog="tetromino-tui")
     p.add_argument("--level", type=int, default=1,
                    help="starting level (1..20, default 1)")
     p.add_argument("--seed", type=int, default=None,

@@ -1,4 +1,4 @@
-# tetris-tui
+# tetromino-tui
 One line at a time.
 
 ![Hero](screenshots/hero.svg)
@@ -15,8 +15,8 @@ SRS rotations with real wall kicks. A proper 7-bag randomizer. Hold piece, next 
 
 ## Install & Run
 ```bash
-git clone https://github.com/akakabrian/tetris-tui
-cd tetris-tui
+git clone https://github.com/akakabrian/tetromino-tui
+cd tetromino-tui
 make
 make run
 ```

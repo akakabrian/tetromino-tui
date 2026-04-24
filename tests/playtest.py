@@ -31,8 +31,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 async def _driven_session() -> None:
     """Drive the app in-process and save sequential SVG snapshots."""
-    from tetris_tui.app import TetrisApp
-    from tetris_tui.engine import MATRIX_W, MATRIX_H
+    from tetromino_tui.app import TetrisApp
+    from tetromino_tui.engine import MATRIX_W, MATRIX_H
 
     # Deterministic seed so the driven session is reproducible.
     app = TetrisApp(start_level=1, seed=12345)
@@ -85,7 +85,7 @@ async def _driven_session() -> None:
         g.grid[bottom] = ["L"] * MATRIX_W
         # Force a tick — ``_lock_piece`` won't run again without a lock
         # event, so we call the public event helpers used by the app.
-        from tetris_tui.engine import LineClearEvent
+        from tetromino_tui.engine import LineClearEvent
         # Simulate: collapse that row and emit an event the matrix view
         # listens for. This mirrors what ``_lock_piece`` would do.
         g._collapse_rows([bottom])
@@ -160,7 +160,7 @@ def smoke_boot_pty() -> None:
 
 
 def main() -> int:
-    print("tetris-tui playtest")
+    print("tetromino-tui playtest")
     print("-" * 72)
     try:
         asyncio.run(_driven_session())

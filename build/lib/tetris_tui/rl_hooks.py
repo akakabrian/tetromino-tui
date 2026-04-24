@@ -1,4 +1,4 @@
-"""RL exposure hooks for tetris-tui.
+"""RL exposure hooks for tetromino-tui.
 
 Headless adapter — bypasses Textual entirely. Wraps engine.Game to
 expose the tui-rl env hook surface:

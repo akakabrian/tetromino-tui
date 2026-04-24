@@ -1,4 +1,4 @@
-# tetris-tui screenshots
+# tetromino-tui screenshots
 
 ![hero](hero.svg)
 

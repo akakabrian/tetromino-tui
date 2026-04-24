@@ -1,4 +1,4 @@
-"""Optional synth sounds for tetris-tui — short blips on move / rotate /
+"""Optional synth sounds for tetromino-tui — short blips on move / rotate /
 lock / line clear / tetris / game-over.
 
 Off by default. Toggled with `s` at runtime or `TETRIS_SOUND=1` in env.
@@ -30,7 +30,7 @@ for _cmd in ("paplay", "aplay", "afplay"):
 
 def _runtime_dir() -> Path:
     base = os.environ.get("XDG_RUNTIME_DIR") or os.environ.get("TMPDIR") or "/tmp"
-    d = Path(base) / "tetris-tui-sounds"
+    d = Path(base) / "tetromino-tui-sounds"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

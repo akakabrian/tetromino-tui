@@ -1,4 +1,4 @@
-# Design decisions — tetris-tui ("Terminal Blocks")
+# Design decisions — tetromino-tui ("Terminal Blocks")
 
 ## 0. Licensing stance
 
@@ -58,7 +58,7 @@ kick** offsets from the SRS kick tables. Two kick tables:
 The O piece has no effective rotation (it's a square) but we still
 accept rotate presses as no-ops so the input contract stays clean.
 
-See `tetris_tui/pieces.py` for the canonical offset tables, sourced
+See `tetromino_tui/pieces.py` for the canonical offset tables, sourced
 from the Tetris Wiki SRS article.
 
 ## 4. Randomizer: 7-bag
@@ -118,8 +118,8 @@ bonus. Skipped in the initial implementation; the hook is left in
 
 ## 9. Persistence
 
-`$XDG_DATA_HOME/tetris-tui/state.json` (falls back to
-`~/.local/share/tetris-tui/`). Schema:
+`$XDG_DATA_HOME/tetromino-tui/state.json` (falls back to
+`~/.local/share/tetromino-tui/`). Schema:
 
     {
       "high_scores": [

@@ -1,7 +1,7 @@
 """Persistence — high-score table + settings.
 
-`$XDG_DATA_HOME/tetris-tui/state.json` (falls back to
-`~/.local/share/tetris-tui/`). Schema:
+`$XDG_DATA_HOME/tetromino-tui/state.json` (falls back to
+`~/.local/share/tetromino-tui/`). Schema:
 
     {
       "high_scores": [
@@ -30,8 +30,8 @@ MAX_HIGH_SCORES = 10
 def _data_dir() -> Path:
     base = os.environ.get("XDG_DATA_HOME")
     if base:
-        return Path(base) / "tetris-tui"
-    return Path.home() / ".local" / "share" / "tetris-tui"
+        return Path(base) / "tetromino-tui"
+    return Path.home() / ".local" / "share" / "tetromino-tui"
 
 
 STATE_PATH = _data_dir() / "state.json"

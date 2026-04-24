@@ -1,4 +1,4 @@
-/* tetris-tui — cool dark UI with per-piece color accents */
+/* tetromino-tui — cool dark UI with per-piece color accents */
 
 Screen {
     background: #0d0c12;

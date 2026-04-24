@@ -1,4 +1,4 @@
-"""Textual app for tetris-tui ("Terminal Blocks").
+"""Textual app for tetromino-tui ("Terminal Blocks").
 
 Layout:
     +---------------------+---------------+

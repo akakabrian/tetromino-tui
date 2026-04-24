@@ -1,4 +1,4 @@
-"""tetris-tui — terminal Terminal Blocks (clean-room Tetris).
+"""tetromino-tui — terminal Terminal Blocks (clean-room Tetris).
 
 See DECISIONS.md for the licensing stance and design choices.
 """
