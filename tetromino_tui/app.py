@@ -42,7 +42,7 @@ from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.strip import Strip
 from textual.widget import Widget
-from textual.widgets import Footer, Header, Static
+from textual.widgets import Static
 
 from . import pieces as pcs
 from . import tiles
@@ -295,6 +295,34 @@ class FlashBar(Static):
         self.update(Text.from_markup(msg))
 
 
+class TopHUD(Horizontal):
+    """Top chrome: title / time / moves / score."""
+
+    def compose(self) -> ComposeResult:
+        yield Static("◆ TERMINAL BLOCKS ◆", id="hud-title")
+        yield Static("TIME 0:00", id="hud-time")
+        yield Static("MOVES 0", id="hud-moves")
+        yield Static("SCORE 0", id="hud-score")
+
+    def refresh_hud(self, app: "TetrisApp") -> None:
+        if not self.is_mounted:
+            return
+        s = app.game.state()
+        elapsed = int(s["elapsed"])
+        mm, ss = divmod(elapsed, 60)
+        try:
+            app.query_one("#hud-title", Static).update("◆ TERMINAL BLOCKS ◆")
+            app.query_one("#hud-time", Static).update(f"TIME {mm}:{ss:02d}")
+            app.query_one("#hud-moves", Static).update(
+                f"MOVES {s['pieces_locked']}"
+            )
+            app.query_one("#hud-score", Static).update(
+                f"SCORE {s['score']:,} · L{s['level']} · {s['lines']}L"
+            )
+        except Exception:
+            return
+
+
 _HELP_TEXT = (
     "[bold]Terminal Blocks[/]\n\n"
     "[bold]Goal[/]  clear rows by filling them end-to-end.\n"
@@ -365,6 +393,7 @@ class TetrisApp(App):
         self.next_panel = NextPanel(self.game)
         self.hold_panel = HoldPanel(self.game)
         self.stats_panel = StatsPanel(self.game)
+        self.top_hud = TopHUD(id="top-hud")
         self.flash_bar = FlashBar(" ", id="flash-bar")
         self.help_overlay = HelpOverlay()
         self.help_overlay.id = "help-overlay"
@@ -398,27 +427,29 @@ class TetrisApp(App):
     # ---- layout --------------------------------------------------------
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=False)
+        yield self.top_hud
         with Horizontal(id="body"):
             with Vertical(id="matrix-col"):
                 yield self.matrix_view
-                yield self.flash_bar
             with Vertical(id="side"):
                 yield self.next_panel
                 yield self.hold_panel
                 yield self.stats_panel
+        yield self.flash_bar
         yield self.help_overlay
-        yield Footer()
 
     async def on_mount(self) -> None:
         self.matrix_view.border_title = "MATRIX"
         self._refresh_all_panels()
         self._show_hint()
         self._update_header()
+        self._refresh_hud()
         # 60 Hz gravity tick.
         self.set_interval(TICK_INTERVAL, self._tick)
         # 2 Hz pulse — cheap status-panel repaint for banner shimmer.
         self.set_interval(0.5, self._pulse)
+        # 1 Hz top HUD ticker for elapsed time + score.
+        self.set_interval(1.0, self._refresh_hud)
 
     # ---- helpers -------------------------------------------------------
 
@@ -452,11 +483,14 @@ class TetrisApp(App):
             )
         else:
             self.flash_bar.set_message(
-                "[dim]arrows move · ↑/x rotate · z CCW · space drop · c hold[/]"
+                "[dim]←→ move · ↑/x rotate · z CCW · space drop · c hold · m music[/]"
             )
 
     def _pulse(self) -> None:
         self.stats_panel.refresh_panel(force=True)
+
+    def _refresh_hud(self) -> None:
+        self.top_hud.refresh_hud(self)
 
     # ---- ticker --------------------------------------------------------
 
@@ -514,6 +548,7 @@ class TetrisApp(App):
         # handles the time counter. But we DO need it when the score
         # changes, so push a refresh here for correctness.
         self.stats_panel.refresh_panel()
+        self._refresh_hud()
         self._update_header()
 
     def _handle_game_over(self) -> None:
@@ -562,6 +597,7 @@ class TetrisApp(App):
     def _after_input(self) -> None:
         """Post-input refresh. Cheap; we do it after every key."""
         self._refresh_all_panels()
+        self._refresh_hud()
         self._update_header()
 
     def action_move(self, direction: str) -> None:

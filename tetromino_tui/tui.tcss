@@ -1,8 +1,37 @@
-/* tetromino-tui — cool dark UI with per-piece color accents */
+/* tetromino-tui — pysolfc-style top HUD + dim context line */
 
 Screen {
-    background: #0d0c12;
-    color: #e8e6f2;
+    background: #07190f;
+    color: #efe8d1;
+}
+
+#top-hud {
+    height: 3;
+    padding: 0 2;
+    border-bottom: solid #375a2d;
+    background: #07190f;
+}
+
+#hud-title {
+    width: 1fr;
+    color: #ffd45a;
+    text-style: bold;
+    content-align: left middle;
+}
+
+#hud-time,
+#hud-moves {
+    width: 1fr;
+    content-align: center middle;
+    text-style: bold;
+    color: #c9cfb8;
+}
+
+#hud-score {
+    width: 1fr;
+    content-align: right middle;
+    text-style: bold;
+    color: #c9cfb8;
 }
 
 #body {
@@ -26,53 +55,56 @@ Screen {
 
 MatrixView {
     height: 1fr;
-    border: round #5d5a7a;
-    border-title-color: #c9c4ec;
+    border: round #375a2d;
+    border-title-color: #c9cfb8;
     border-title-style: bold;
-    background: #17141d;
+    background: #0c2a17;
 }
 
 NextPanel {
     height: 12;
-    border: round #5d5a7a;
-    border-title-color: #c9c4ec;
+    border: round #375a2d;
+    border-title-color: #c9cfb8;
     border-title-style: bold;
     padding: 0 1;
-    background: #13111a;
+    background: #0c2a17;
 }
 
 HoldPanel {
     height: 6;
-    border: round #5d5a7a;
-    border-title-color: #c9c4ec;
+    border: round #375a2d;
+    border-title-color: #c9cfb8;
     border-title-style: bold;
     padding: 0 1;
-    background: #13111a;
+    background: #0c2a17;
 }
 
 StatsPanel {
     height: 1fr;
-    border: round #5d5a7a;
-    border-title-color: #c9c4ec;
+    border: round #375a2d;
+    border-title-color: #c9cfb8;
     border-title-style: bold;
     padding: 0 1;
-    background: #13111a;
+    background: #0c2a17;
 }
 
 #flash-bar {
     height: 1;
     padding: 0 1;
-    background: #1c1828;
-    color: #c9c4ec;
+    margin-top: 1;
+    margin-bottom: 1;
+    background: #07190f;
+    color: #6b8462;
+    text-style: none;
 }
 
 #help-overlay {
     layer: overlay;
-    border: round #c9c4ec;
-    border-title-color: #c9c4ec;
+    border: round #ffd45a;
+    border-title-color: #ffd45a;
     border-title-style: bold;
-    background: #15131e;
-    color: #e8e6f2;
+    background: #0c2a17;
+    color: #efe8d1;
     padding: 1 3;
     offset: 50% 20%;
     width: 64;
@@ -80,47 +112,30 @@ StatsPanel {
     display: none;
 }
 
-Header {
-    background: #1c1828;
-    color: #c9c4ec;
-    text-style: bold;
-}
-
-Footer {
-    background: #1c1828;
-    color: #9691b5;
-}
-
-Footer > .footer--key {
-    background: #312b47;
-    color: #e0dcf8;
-    text-style: bold;
-}
-
 /* Modal screens */
 
 HighScoresScreen { align: center middle; }
 #scores-body {
     width: 60; height: auto; padding: 1 3;
-    border: round #c9c4ec;
-    background: #15131e;
+    border: round #ffd45a;
+    background: #0c2a17;
 }
 #scores-content { height: auto; }
-#scores-dismiss { padding-top: 1; color: #6e6a8c; }
+#scores-dismiss { padding-top: 1; color: #6b8462; }
 
 GameOverScreen { align: center middle; }
 #gameover-body {
     width: 50; height: auto; padding: 1 3;
-    border: round #f07878;
-    background: #15131e;
+    border: round #ffd45a;
+    background: #0c2a17;
 }
 #gameover-msg { height: auto; padding-bottom: 1; }
 
 ConfirmScreen { align: center middle; }
 #confirm-body {
     width: 50; height: auto; padding: 1 3;
-    border: round #c9c4ec;
-    background: #15131e;
+    border: round #ffd45a;
+    background: #0c2a17;
 }
 #confirm-msg { height: auto; padding-bottom: 1; }
-#confirm-keys { color: #c9c4ec; text-style: bold; }
+#confirm-keys { color: #c9cfb8; text-style: bold; }
