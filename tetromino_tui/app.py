@@ -52,8 +52,9 @@ from .engine import (
 )
 from . import state as state_mod
 from .music import MusicPlayer
-from .screens import ConfirmScreen, GameOverScreen, HighScoresScreen
+from .screens import ConfirmScreen, GameOverScreen, HighScoresScreen, RulesScreen
 from .sounds import SoundBoard
+from .rules import RULES_TEXT
 
 
 # Tick cadence — the engine runs its gravity in `tick(dt)` so we can
@@ -390,6 +391,7 @@ class TetrisApp(App):
         Binding("g", "toggle_ghost", "Ghost"),
         Binding("s", "toggle_sound", "Sound"),
         Binding("m", "toggle_music", "Music"),
+        Binding("r", "show_rules", "Rules"),
         Binding("question_mark", "toggle_help", "Help"),
         # Movement — priority so nothing eats them.
         Binding("left",  "move('left')",  "←", show=False, priority=True),
@@ -798,6 +800,11 @@ class TetrisApp(App):
 
     def action_toggle_help(self) -> None:
         self.help_overlay.display = not self.help_overlay.display
+
+    def action_show_rules(self) -> None:
+        if self.help_overlay.display:
+            self.help_overlay.display = False
+        self.push_screen(RulesScreen("TETROMINO", RULES_TEXT))
 
     def action_toggle_scores(self) -> None:
         if self._maybe_dismiss_help():
